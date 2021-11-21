@@ -15,6 +15,7 @@ git clone https://github.com/heiyiu/nominatim-docker-example.git
 cd nominatim-docker-example
 docker build . --tag nominatim-docker-example:1.0
 ```
+
 ```bash
 # instructions for minikube
 git clone https://github.com/heiyiu/nominatim-docker-example.git
@@ -41,6 +42,7 @@ docker run -it nominatim-docker-example:1.0
 
 ## General Best Practices
 1. On improving build speed and decreasing image size
+
 Switching to a smaller base os (like Alpine) for the run/app layer is a definitely an option. However, Alpine may not have all the packages available upstream if the target app includes too many dependencies. To change the base os, change the FROM lines in the Dockerfile to a differnt os. Here is an example comparing how the base images affect the final image size. 
 Another good practice is to make use of multi-stage build. Multi-stage build is the process of building artifact in a build layer and then copying only the built artifact to a different layer for running. The multi-stage pattern allows us to choose different os for building and running the application, which is beneficial for legacy applications that require older packages. Since some tools required to build an application is often not required to run an application, multi-stage build will result in a smaller image.  
 ```bash
@@ -48,6 +50,7 @@ Another good practice is to make use of multi-stage build. Multi-stage build is 
 REPOSITORY                    TAG                 IMAGE ID            CREATED              SIZE
 luigi-docker-example-alpine   1.0                 b83f2e8284f6        About a minute ago   169MB
 luigi-docker-example          1.0                 36405ae99b6d        23 minutes ago       533MB
+```
 ```bash
 # top is the size for the final image using multi-stage build, bottom is the size of the image using single-stage build
 nominatim-example             1.0                 6f1bf53a5c56   24 minutes ago   681MB
@@ -55,9 +58,11 @@ nominatim-example             1.0                 3d543f1da6f6   24 minutes ago 
 ```
 
 2. On versioning dependencies
+
 Always provide a specific version (or range) for python package version and your base OS in your Dockerfile! I also recommend splitting out the application's python requirements file into a separate file (usually referred to as requirements.txt). We never know when a major version upgrade will break backward compactibility. Another recommendation is to move the python package installation further down in the Dockerfile to take advantage of image caching. However, running the build with the --no-cache flag occasionally is also a good idea.
 
 3. On choosing the best base os image
+
 While using Alpine as base image does result in a smaller image, the lack of backward compactibility can cause issues. For example, if I need to use an older version of Postgres (9.6), I'd need to go back to a much older version of Alpine. For Ubuntu, I'd simply have to compile the package manually
 ```dockerfile example
 RUN apt-get install software-properties-common --assume-yes && \
@@ -67,5 +72,6 @@ RUN apt-get install software-properties-common --assume-yes && \
 ```
 
 4. On variables
+
 For build time arguments, make use of the ARG command in the Dockerfile.
 For configuring environmental variables during build, make use of the ENV command.
